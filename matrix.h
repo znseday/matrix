@@ -134,9 +134,9 @@ void Matrix<T,DefVal,N>::SetValue(const T &Value, Args... args)
 {
     assert(N==sizeof...(args));
     int realArgs[sizeof...(args)] = { (args)... };
-    CoordStruct<N> key = { (args)... };
+    //CoordStruct<N> key = { (args)... };
 
-    //CoordStruct<N> key;
+    CoordStruct<N> key;
     memcpy(key.axes, realArgs, sizeof(realArgs));
 
     auto it = data.find(key);
