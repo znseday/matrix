@@ -3,6 +3,7 @@
 #include <map>
 #include <iterator>
 #include <algorithm>
+#include <cassert>
 
 #include "matrix.h"
 
@@ -21,7 +22,11 @@ int main()
 
     cout << "Hello, matrix!" << endl;
 
-    TestStaggeredOrder();
+    //TestBasic();
+
+    TestMyTest();
+
+    //TestMainTask();
 
     return 0;
 }
