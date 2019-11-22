@@ -6,7 +6,7 @@
 #include <iterator>
 #include <algorithm>
 #include <utility>
-#include <memory>
+#include <memory.h>
 #include <cassert>
 
 using namespace std;
