@@ -29,15 +29,15 @@ void TestMainTask();
 void TestMyTest();
 //-----------------------------------------------
 
-struct CoordStruct_2D
-{
-    int i, j;
-    CoordStruct_2D() = delete;
-    CoordStruct_2D(int _i, int _j) : i(_i), j(_j) {}
-    CoordStruct_2D(const CoordStruct_2D &) = default;
-    CoordStruct_2D(CoordStruct_2D &&) = default;
-    bool operator<(const CoordStruct_2D &ob) {return i < ob.j;} // for map optimization (two coordinats can be separated diagonal line)
-};
+// struct CoordStruct_2D  // for the first try
+// {
+//     int i, j;
+//     CoordStruct_2D() = delete;
+//     CoordStruct_2D(int _i, int _j) : i(_i), j(_j) {}
+//     CoordStruct_2D(const CoordStruct_2D &) = default;
+//     CoordStruct_2D(CoordStruct_2D &&) = default;
+//     bool operator<(const CoordStruct_2D &ob) {return i < ob.j;} // for map optimization (two coordinats can be separated diagonal line)
+// };
 
 
 template <size_t N = 2>
