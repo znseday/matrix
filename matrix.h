@@ -6,7 +6,7 @@
 #include <iterator>
 #include <algorithm>
 #include <utility>
-#include <memory.h>
+#include <memory>
 #include <cassert>
 
 using namespace std;
@@ -29,15 +29,15 @@ void TestMainTask();
 void TestMyTest();
 //-----------------------------------------------
 
-// struct CoordStruct_2D  // for the first try
-// {
-//     int i, j;
-//     CoordStruct_2D() = delete;
-//     CoordStruct_2D(int _i, int _j) : i(_i), j(_j) {}
-//     CoordStruct_2D(const CoordStruct_2D &) = default;
-//     CoordStruct_2D(CoordStruct_2D &&) = default;
-//     bool operator<(const CoordStruct_2D &ob) {return i < ob.j;} // for map optimization (two coordinats can be separated diagonal line)
-// };
+//struct CoordStruct_2D   // for the first try
+//{
+//    int i, j;
+//    CoordStruct_2D() = delete;
+//    CoordStruct_2D(int _i, int _j) : i(_i), j(_j) {}
+//    CoordStruct_2D(const CoordStruct_2D &) = default;
+//    CoordStruct_2D(CoordStruct_2D &&) = default;
+//    bool operator<(const CoordStruct_2D &ob) {return i < ob.j;} // for map optimization (two coordinats can be separated diagonal line)
+//};
 
 
 template <size_t N = 2>
@@ -48,7 +48,7 @@ struct CoordStruct
 
     template <typename... Args>
     CoordStruct(Args... args)
-    {                                // compiled, but doesn't work!(( Even breaks GDB process! Why????????
+    {                                // compiled, but doesn't work!(( Even breaks GDB process (The GDB process terminated)! Why????????
         const int argc = sizeof...(args);
         assert(N==argc);
         int t[argc] = { (args)... };
@@ -134,9 +134,9 @@ void Matrix<T,DefVal,N>::SetValue(const T &Value, Args... args)
 {
     assert(N==sizeof...(args));
     int realArgs[sizeof...(args)] = { (args)... };
-    //CoordStruct<N> key = { (args)... };
+    CoordStruct<N> key = { (args)... };
 
-    CoordStruct<N> key;
+    //CoordStruct<N> key;
     memcpy(key.axes, realArgs, sizeof(realArgs));
 
     auto it = data.find(key);
