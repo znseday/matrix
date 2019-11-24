@@ -35,7 +35,7 @@ void TestMyTest()
 {
     cout << "TestMyTest" << endl;
 
-    Matrix<int, -1> matrix;
+    Matrix<int, 0> matrix; // 0 instead of -1 for output adjusting
     cout << "matrix.size() = " << matrix.size() << endl;
 
     auto val = matrix.GetValue(0, 0);
@@ -48,14 +48,20 @@ void TestMyTest()
     cout << "val (expected 314) = " << val << endl;
     cout << "matrix.size() = " << matrix.size() << endl;
 
-
-    for (int i = 0; i < 8; i += 2)
-        for (int j = i +2; j < 10; j += 2)
+    int n = 0;
+    for (int i = 0; i < 8; i += 1)
+        for (int j = i + 2; j < 10; j += 2)
         {
-            matrix.SetValue(5, i, j); // Doesn't add a new element. Why ???
+            matrix.SetValue(5, i, j);
             matrix.SetValue(5, j, i);
-        }
-
+            n++;
+        }  
+    for(int i = 0; i < 10; i++)
+    {
+        matrix.SetValue(5, i, i);
+        n++;
+    }
+    cout << "n = " << n << endl;
     cout << "matrix.size() = " << matrix.size() << endl;
 
     for (int i = 0; i < 10; i++)
