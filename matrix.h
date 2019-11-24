@@ -36,7 +36,7 @@ void TestMyTest();
 //    CoordStruct_2D(int _i, int _j) : i(_i), j(_j) {}
 //    CoordStruct_2D(const CoordStruct_2D &) = default;
 //    CoordStruct_2D(CoordStruct_2D &&) = default;
-//    bool operator<(const CoordStruct_2D &ob) {return i < ob.j;} // for map optimization (two coordinats can be separated diagonal line)
+//    bool operator<(const CoordStruct_2D &ob) const {return i < ob.j;} // for map optimization (two coordinats can be separated diagonal line)
 //};
 
 
@@ -60,13 +60,23 @@ struct CoordStruct
 
     bool operator<(const CoordStruct<N> &ob) const
     {
-        int sum_1 = 0, sum_2 = 0;
-        for (auto v : axes)
-            sum_1 += v;
-        for (auto v : ob.axes)
-            sum_2 += v;
-        return sum_1 < sum_2;
-    } // return what? I'm thinking about generalized planes, but let it be just sum
+        // return what? I'm thinking about generalized planes, but let it be just something lexicographical
+
+        // Ok, let's do something lexicographical
+//        for (int i = 0; i < N; i++)
+//        {
+//            if (axes[i] == ob.axes[i])
+//                continue;
+
+//            if (axes[i] < ob.axes[i])
+//                return true;
+//            else
+//                return false;
+//        }
+//        return false;
+
+        return lexicographical_compare(axes, axes + N, ob.axes, ob.axes + N);
+    }
 
     bool operator==(const CoordStruct<N> &ob) const
     {
