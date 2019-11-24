@@ -64,7 +64,7 @@ struct CoordStruct
         for (auto v : axes)
             sum_1 += v;
         for (auto v : ob.axes)
-            sum_1 += v;
+            sum_2 += v;
         return sum_1 < sum_2;
     } // return what? I'm thinking about generalized planes, but let it be just sum
 
