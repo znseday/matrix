@@ -1,19 +1,17 @@
 #pragma once
 
 #include <iostream>
-#include <vector>
 #include <map>
 #include <iterator>
 #include <algorithm>
 #include <utility>
-#include <memory.h>
 #include <cassert>
 
 using namespace std;
 
 // __FUNCSIG__ is for VS, but Qt (mingw) works with __PRETTY_FUNCTION__
 #if ((defined WIN32) || (defined WIN64)) && (defined _MSC_VER)
-//#define MY_P_FUNC __FUNCSIG__
+#define MY_P_FUNC __FUNCSIG__
 #else
 #define MY_P_FUNC __PRETTY_FUNCTION__
 #endif
@@ -27,6 +25,8 @@ using namespace std;
 void TestBasic();
 void TestMainTask();
 void TestMyTest();
+void TestMyRef();
+void TestPro4D();
 //-----------------------------------------------
 
 //struct CoordStruct_2D   // for the first try
@@ -36,7 +36,7 @@ void TestMyTest();
 //    CoordStruct_2D(int _i, int _j) : i(_i), j(_j) {}
 //    CoordStruct_2D(const CoordStruct_2D &) = default;
 //    CoordStruct_2D(CoordStruct_2D &&) = default;
-//    bool operator<(const CoordStruct_2D &ob) const {return i < ob.j;} // for map optimization (two coordinats can be separated diagonal line)
+//    bool operator<(const CoordStruct_2D &ob) const {return i < ob.j;} // for map optimization (two coordinats can be separated by a diagonal line)
 //};
 
 
@@ -78,11 +78,21 @@ struct CoordStruct
         return lexicographical_compare(axes, axes + N, ob.axes, ob.axes + N);
     }
 
-    bool operator==(const CoordStruct<N> &ob) const
-    {
-        return (memcmp(axes, ob.axes, sizeof(axes)) == 0); // Never called. Why????
-    }
+//    bool operator==(const CoordStruct<N> &ob) const
+//    {
+//        return (memcmp(axes, ob.axes, sizeof(axes)) == 0); // Never called for std::map.
+//    }
+
 };
+
+template <size_t N = 2>
+ostream & operator<<(ostream &s, const CoordStruct<N> &ob)
+{
+    cout << "(";
+    for (int i = 0; i < N; i++)
+        cout << ob.axes[i] << ((i<N-1) ? ";" : ")");
+    return s;
+}
 //-----------------------------------------------
 
 template <typename T, const T DefVal, size_t N = 2>
@@ -91,49 +101,136 @@ class Matrix
 private:
 
     pair<CoordStruct<N>,T> DefPair;
+    T DefValForRes;
     map<CoordStruct<N>,T> data;
+    CoordStruct<N> key;
+
+    class flat_iterator
+    {
+    private:
+       typename map<CoordStruct<N>,T>::iterator it;
+    public:
+        flat_iterator(typename map<CoordStruct<N>,T>::iterator _it) : it(_it) {}
+        bool operator!=(const flat_iterator& _it){return it != _it.it;}
+        void operator++() {++it;}
+        auto & operator*() {return *it;}
+    };
+
+    class ProxyAtOnce
+    {
+    private:
+        Matrix &self;
+        CoordStruct<N> key;
+    public:
+        ProxyAtOnce(Matrix &_matrix, CoordStruct<N> _key) : self(_matrix), key(_key) {}
+        ProxyAtOnce & operator=(T val)
+        {
+            if (val != DefVal)
+                self.data.try_emplace(key , val);
+            else
+                self.data.erase(key);
+
+            return *this;
+        }
+
+        operator T() const
+        {
+            return self.GetRefVal(key);
+        }
+    };
+
+
+    template<int P, typename Dummy = void>
+    class SubProxy
+    {
+    private:
+        Matrix &self;
+    public:
+        SubProxy(Matrix &_matrix) : self(_matrix){}
+        SubProxy<P+1> operator[](int i)
+        {
+            self.key.axes[P+1] = i;
+            return SubProxy<P+1>(self);
+        }
+    };
+
+    template<typename Dummy>
+    class SubProxy<N-2, Dummy>
+    {
+    private:
+        Matrix &self;
+    public:
+        SubProxy(Matrix &_matrix) : self(_matrix){}
+
+        //SubProxy & operator=(const SubProxy & ob) = default;
+
+        ProxyAtOnce operator[](int i)
+        {
+            self.key.axes[N-1] = i;
+            return ProxyAtOnce(self, self.key);
+        }
+    };
 
 public:
 
     size_t size() {return data.size();}
 
     template <typename... Args>
-    pair<CoordStruct<N>,T> operator()(Args... args); // just for start to code something
-
-    //T & operator()(int r, int c);
-
-    template <typename... Args>
     void SetValue(const T &Value, Args... args);
 
     template <typename... Args>
     T & GetValue(Args... args);
+
+    template <typename... Args>
+    T & GetRefVal(Args... args);
+
+    T & GetRefVal(CoordStruct<N> key);
+
+    SubProxy<0> operator[](int i)
+    {
+        key.axes[0] = i;
+        return SubProxy<0>(*this);
+    }
+
+    flat_iterator begin() {return data.begin();}
+    flat_iterator end()   {return data.end();}
 };
 //-----------------------------------------------
 
 template <typename T, T DefVal, size_t N>
 template <typename... Args>
-pair<CoordStruct<N>,T>  Matrix<T,DefVal,N>::operator()(Args... args)
+T & Matrix<T,DefVal,N>::GetRefVal(Args... args)
 {
     assert(N==sizeof...(args));
     int realArgs[sizeof...(args)] = { (args)... };
-
-    //CoordStruct<N> key = { (args)... }; // compiled, but doesn't work!(( Even breaks GDB process! Why?
-
     CoordStruct<N> key;
     memcpy(key.axes, realArgs, sizeof(realArgs));
 
-    //auto it = data.find(key);
-    typename map<CoordStruct<N>,T>::iterator it = data.find(key);
-
-    if (it != data.end()) // found
+    auto it = data.find(key);
+    if (it != data.end()) // found (Required super-puper-proper operator<. Doesn't use operator==)
     {
-        return *it;
+        return (*it).second;
     }
     else // not found
     {
-        memcpy(DefPair.first.axes, realArgs, sizeof(DefPair.first.axes));
-        DefPair.second = DefVal; // even if someone changes 'df' before, it's DefVal again. So, 'const' version is not necessery.
-        return DefPair;
+        DefValForRes = DefVal; // even if someone changes 'DefValForRes' before, it's DefVal again. So, 'const' version is not necessery.
+        return DefValForRes;
+    }
+}
+//-----------------------------------------------
+
+template <typename T, T DefVal, size_t N>
+T & Matrix<T,DefVal,N>::GetRefVal(CoordStruct<N> key)
+{
+    auto it = data.find(key);
+    if (it != data.end()) // found (Required super-puper-proper operator<. Doesn't use operator==)
+    {
+        return (*it).second;
+    }
+    else // not found
+    {
+        DefValForRes = DefVal; // even if someone changes 'df' before, it's DefVal again. So, 'const' version is not necessery.
+        return DefValForRes;
     }
 }
 //-----------------------------------------------
@@ -151,9 +248,12 @@ void Matrix<T,DefVal,N>::SetValue(const T &Value, Args... args)
 
     auto it = data.find(key);
 
-    if (it != data.end()) // found    (it's that for any key. Why ??????)
+    if (it != data.end()) // found (Required super-puper-proper operator<. Doesn't use operator==)
     {
-        (*it).second = Value; // it's executed for any key. Why ?????????
+        if (Value != DefVal)
+            (*it).second = Value;
+        else
+            data.erase(key);
     }
     else // not found
     {
@@ -163,7 +263,8 @@ void Matrix<T,DefVal,N>::SetValue(const T &Value, Args... args)
         //data.try_emplace( {(args)... , Value} ); // isn't compiled((( Why ???
         // cppinsight says: 'this->data.try_emplace<>(CoordStruct<2>{(__args1), (__args2), Value});'
 
-        data.try_emplace( key , Value );
+        if (Value != DefVal)
+            data.try_emplace( key , Value );
     }
 }
 //-----------------------------------------------
@@ -194,16 +295,3 @@ T & Matrix<T,DefVal,N>::GetValue(Args... args)
 }
 //-----------------------------------------------
 
-
-
-//template<typename T>
-//void operator=(pair<CoordStruct,T> &dst, const T &src)
-//{
-//    dst.second = src;
-//}
-
-//template<typename T>
-//T &operator=(T &dst, const pair<CoordStruct,T> &src)
-//{
-//    dst = src.second;
-//}

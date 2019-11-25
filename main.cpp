@@ -1,5 +1,4 @@
 #include <iostream>
-#include <vector>
 #include <map>
 #include <iterator>
 #include <algorithm>
@@ -8,6 +7,7 @@
 #include "matrix.h"
 
 using namespace std;
+
 
 int main()
 {
@@ -22,11 +22,14 @@ int main()
 
     cout << "Hello, matrix!" << endl;
 
-    //TestBasic();
+    TestBasic();
 
-    TestMyTest();
+    TestMainTask();
 
-    //TestMainTask();
+    TestPro4D();
+
+    //TestMyTest();
+    //TestMyRef();
 
     return 0;
 }
