@@ -6,7 +6,8 @@
 #include <algorithm>
 #include <utility>
 #include <cassert>
-#include <cmemory>
+//#include <cmemory>
+#include <cstring>
 
 using namespace std;
 
