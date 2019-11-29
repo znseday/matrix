@@ -6,8 +6,7 @@
 #include <algorithm>
 #include <utility>
 #include <cassert>
-//#include <cmemory>
-#include <cstring>
+#include <memory.h>
 
 using namespace std;
 
@@ -27,7 +26,7 @@ using namespace std;
 void TestBasic();
 void TestMainTask();
 void TestMyTest();
-void TestMyRef();
+// TestMyRef();
 void TestPro4D();
 //-----------------------------------------------
 
@@ -132,6 +131,13 @@ private:
             else
                 self.data.erase(key);
 
+            return *this;
+        }
+
+        ProxyAtOnce & operator=(const ProxyAtOnce &ob)   // =default doesn't work cos of '&self' (((
+        {
+            //self = ob.self;   doesn't work cos of '&self' (((
+            *this = static_cast<T>(ob); // to cause operator T() and then operator=(T val)
             return *this;
         }
 
