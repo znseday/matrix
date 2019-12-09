@@ -24,6 +24,7 @@ using namespace std;
 #endif
 
 void TestBasic();
+void TestChess();
 void TestMainTask();
 void TestMyTest();
 // TestMyRef();

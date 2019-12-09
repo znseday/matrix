@@ -22,6 +22,41 @@ void TestBasic()
     cout << "//-------------------" << endl;
 }
 
+void TestChess()
+{
+    cout << endl << "TestChess" << endl;
+
+    Matrix<int, 0> m;
+    int n = 0;
+    for (int i = 0; i < 8; i++)
+        for (int j = i + 2; j < 10; j += 2)
+        {
+            m[i][j] = m[j][i] = 5;
+            n++;
+        }
+
+    for(int i = 0; i < 5; i++)
+    {
+        m[i][i] = m[10-i-1][10-i-1] = 5;
+        n++;
+    }
+    assert(n == 25); // 25 interations
+
+    for (int i = 1; i <= 8; i++)
+    {
+        for (int j = 1; j <= 8; j++)
+        {
+            //auto v = m[i][j];
+            cout << m[i][j] << " ";
+        }
+        cout << endl;
+    }
+
+    cout << "m.size() = " << m.size() << endl;
+
+    cout << "//-------------------" << endl;
+}
+
 void TestMainTask()
 {
     cout << endl << "TestMainTask" << endl;
@@ -42,7 +77,7 @@ void TestMainTask()
         }
     for(int i = 0; i < 5; i++)
     {
-        m[i][i] = m[10-i-1][10-i] = 0;
+        m[i][i] = m[10-i-1][10-i-1] = 0;
         n++;
     }
     assert(n == 25); // 25 interations

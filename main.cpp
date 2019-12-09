@@ -24,9 +24,11 @@ int main()
 
     TestBasic();
 
+    //TestChess();
+
     TestMainTask();
 
-    TestPro4D();
+    //TestPro4D();
 
     //TestMyTest();
     //TestMyRef();
