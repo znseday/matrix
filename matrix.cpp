@@ -126,6 +126,32 @@ void TestPro4D()
     cout << "//-------------------" << endl;
 }
 
+void TestPro7D()
+{
+    cout << endl << "TestPro7D" << endl;
+
+    Matrix<int, -1, 7> matrix;
+    int val = matrix[0][0][0][0][0][0][0];    // In case 'auto val': 'a' is ProxyAtOnce. So, I wrote 'int' explicit
+    cout << "val (expected default) = " << val << endl;
+    cout << "matrix.size() = " << matrix.size() << endl;
+
+    matrix[0][0][0][0][0][0][0] = 314;
+    cout << "matrix.size() = " << matrix.size() << endl;
+    val = matrix[0][0][0][0][0][0][0];
+    cout << "val (expected 314) = " << val << endl;
+    cout << "matrix.size() = " << matrix.size() << endl;
+
+    for (int i = 1; i < 5; i++)
+        matrix[i+10][0][i*i][i*i*i][i*100][i*1000][i*i] = i*i;
+
+    for (auto item : matrix)
+        cout << item.first << " = " << item.second << endl;
+
+    cout << "matrix.size() = " << matrix.size() << endl;
+
+    cout << "//-------------------" << endl;
+}
+
 void TestMyTest()
 {
     cout << endl << "TestMyTest" << endl;

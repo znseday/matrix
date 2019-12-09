@@ -28,7 +28,8 @@ int main()
 
     TestMainTask();
 
-    //TestPro4D();
+    TestPro4D();
+    TestPro7D();
 
     //TestMyTest();
     //TestMyRef();

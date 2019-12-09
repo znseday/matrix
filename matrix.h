@@ -29,6 +29,7 @@ void TestMainTask();
 void TestMyTest();
 // TestMyRef();
 void TestPro4D();
+void TestPro7D();
 //-----------------------------------------------
 
 //struct CoordStruct_2D   // for the first try
